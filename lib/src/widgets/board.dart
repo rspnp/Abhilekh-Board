@@ -27,6 +27,7 @@ class AppFlowyBoardConfig {
     this.boardCornerRadius = 6.0,
     this.groupCornerRadius = 6.0,
     this.groupBackgroundColor = Colors.transparent,
+    this.groupBackgroundColorBuilder,
     this.groupMargin = const EdgeInsets.symmetric(horizontal: 8),
     this.groupHeaderPadding = const EdgeInsets.symmetric(horizontal: 16),
     this.groupBodyPadding = const EdgeInsets.symmetric(horizontal: 12),
@@ -41,6 +42,12 @@ class AppFlowyBoardConfig {
   // group
   final double groupCornerRadius;
   final Color groupBackgroundColor;
+
+  /// Optional per-group background color. When provided and it returns a
+  /// non-null color for a group id, that color fills the whole column instead
+  /// of [groupBackgroundColor]. Lets the host app paint per-column ("Color
+  /// columns") backgrounds. Falls back to [groupBackgroundColor] when null.
+  final Color? Function(String groupId)? groupBackgroundColorBuilder;
   final EdgeInsets groupMargin;
   final EdgeInsets groupHeaderPadding;
   final EdgeInsets groupBodyPadding;
@@ -306,7 +313,9 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
                 phantomController: widget.phantomController,
                 onReorder: widget.boardController.moveGroupItem,
                 cornerRadius: widget.config.groupCornerRadius,
-                backgroundColor: widget.config.groupBackgroundColor,
+                backgroundColor:
+                    widget.config.groupBackgroundColorBuilder?.call(columnData.id) ??
+                        widget.config.groupBackgroundColor,
                 dragStateStorage: widget.boardState,
                 dragTargetKeys: widget.boardState,
                 reorderFlexAction: reorderFlexAction,
